@@ -1,14 +1,18 @@
 {
-  "name": "tiktok-roblox-server",
+  "name": "tiktok-roblox-integration",
   "version": "1.0.0",
+  "description": "TikTok LIVE event listener for Roblox integration",
   "main": "main.js",
   "scripts": {
     "start": "node main.js"
   },
   "dependencies": {
+    "tiktok-live-connector": "3.0.0",
     "express": "^4.18.2",
-    "puppeteer": "^21.3.8",
-    "tiktok-live-connector": "^1.4.0",
+    "puppeteer": "^20.7.4",
     "ws": "^8.13.0"
+  },
+  "engines": {
+    "node": ">=16"
   }
 }
