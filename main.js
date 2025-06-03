@@ -3,7 +3,7 @@ const express = require("express");
 const WebSocket = require("ws");
 const http = require("http");
 
-const SECRET_KEY = "SuperStars)9827^%^&^%^%^&***()827$#@#$%%%$##$"; // GANTI jika perlu
+const SECRET_KEY = "SuperStars)9827^%^&^%^%^&***()827$#@#$%%%$##$"; // GANTI kalau perlu
 const USERNAME = "maskoplak630";
 
 let lastRobloxEvent = null;
@@ -14,36 +14,10 @@ let clients = [];
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-
 const PORT = process.env.PORT || 3000;
 
-// ========================
-// 🌐 HTTP API untuk Roblox
-// ========================
-
-app.get("/roblox-event", (req, res) => {
-  const token = req.query.token;
-  if (token !== SECRET_KEY) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  if (lastRobloxEvent) {
-    res.json(lastRobloxEvent);
-    lastRobloxEvent = null;
-  } else {
-    res.json({ eventType: "none" });
-  }
-});
-
-app.get("/leaderboard", (req, res) => {
-  const sorted = Object.entries(leaderboard)
-    .sort((a, b) => b[1] - a[1])
-    .map(([username, totalCoins]) => ({ username, totalCoins }));
-  res.json({ leaderboard: sorted });
-});
-
 // ==========================
-// 🔐 WebSocket Area
+// 🔐 WebSocket Client (Unity)
 // ==========================
 
 wss.on("connection", (ws, req) => {
@@ -75,9 +49,38 @@ function broadcastToClients(event) {
   });
 }
 
-// 📡 TikTok Connect
+// ========================
+// 🌐 HTTP API untuk Roblox
+// ========================
+
+app.get("/roblox-event", (req, res) => {
+  const token = req.query.token;
+  if (token !== SECRET_KEY) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  if (lastRobloxEvent) {
+    res.json(lastRobloxEvent);
+    lastRobloxEvent = null;
+  } else {
+    res.json({ eventType: "none" });
+  }
+});
+
+app.get("/leaderboard", (req, res) => {
+  const sorted = Object.entries(leaderboard)
+    .sort((a, b) => b[1] - a[1])
+    .map(([username, totalCoins]) => ({ username, totalCoins }));
+  res.json({ leaderboard: sorted });
+});
+
+// ========================
+// 📡 Koneksi ke TikTok LIVE
+// ========================
+
 async function connectTikTok() {
   tiktok = new WebcastPushConnection(USERNAME);
+
   try {
     const state = await tiktok.connect();
     console.log(`📺 Terhubung ke TikTok LIVE roomId: ${state.roomId}`);
@@ -120,7 +123,7 @@ function setupEventHandlers() {
   }
 }
 
-// ✅ Start Server dan Hubungkan TikTok
+// ✅ Start
 server.listen(PORT, () => {
   console.log(`🚀 Server aktif di http://0.0.0.0:${PORT}`);
 });
