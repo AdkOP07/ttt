@@ -1,0 +1,14 @@
+{
+  "name": "tiktok-roblox-server",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "puppeteer": "^21.3.8",
+    "tiktok-live-connector": "^3.3.0",
+    "ws": "^8.13.0"
+  }
+}
