@@ -4,7 +4,7 @@ const WebSocket = require("ws");
 const http = require("http");
 
 const SECRET_KEY = "SuperStars)9827^%^&^%^%^&***()827$#@#$%%%$##$"; // GANTI kalau perlu
-const USERNAME = "maskoplak630";
+const USERNAME = "followers.tangkap.boost";
 
 let lastRobloxEvent = null;
 let leaderboard = {};
