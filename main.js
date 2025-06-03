@@ -1,6 +1,5 @@
 const { WebcastPushConnection } = require("tiktok-live-connector");
 const express = require("express");
-const puppeteer = require("puppeteer");
 const WebSocket = require("ws");
 const http = require("http");
 
@@ -98,14 +97,14 @@ function setupEventHandlers() {
   const events = ["gift", "follow", "like"];
   for (const type of events) {
     tiktok.on(type, (data) => {
-      const username = data.user || data.uniqueId || "anonymous";
+      const username = data.uniqueId || data.user?.uniqueId || "anonymous";
       const event = {
         eventType: type,
         username,
-        profileImageUrl: "",
+        profileImageUrl: data.user?.profilePictureUrl || "",
         amount: type === "gift" ? data.diamondCount || 1 : undefined,
-        giftId: data.gift?.giftId || data.giftId || 0,
-        giftName: data.gift?.name || data.giftName || "Unknown Gift",
+        giftId: data.gift?.giftId || 0,
+        giftName: data.gift?.name || "Unknown Gift",
         timestamp: Date.now()
       };
 
@@ -121,23 +120,8 @@ function setupEventHandlers() {
   }
 }
 
-async function openLiveViewer() {
-  try {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"]
-    });
-    const page = await browser.newPage();
-    await page.goto(`https://www.tiktok.com/@${USERNAME}/live`, { waitUntil: "networkidle2", timeout: 0 });
-    console.log("👁️ TikTok Live Viewer dibuka di background");
-  } catch (err) {
-    console.error("❌ Gagal buka viewer TikTok:", err.message);
-  }
-}
-
-// ✅ Mulai semua server & koneksi
+// ✅ Start Server dan Hubungkan TikTok
 server.listen(PORT, () => {
   console.log(`🚀 Server aktif di http://0.0.0.0:${PORT}`);
 });
-openLiveViewer();
 connectTikTok();
