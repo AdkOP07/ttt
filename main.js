@@ -1,11 +1,12 @@
 const { WebcastPushConnection } = require("tiktok-live-connector");
 const express = require("express");
 const WebSocket = require("ws");
+const http = require("http");
 
-const PORT_HTTP = process.env.PORT || 4000;   // Railway otomatis pakai env PORT
-const PORT_WS = 8080;                         // WebSocket port privat
-const SECRET_KEY = "SuperStars)9827^%^&^%^%^&***()827$#@#$%%%$##$"; // ganti sesuai rahasia kamu
-const USERNAME = "maskoplak630";              // akun TikTok LIVE kamu
+const PORT = process.env.PORT || 4000;   // Gunakan 1 port dari env Railway
+
+const SECRET_KEY = "SuperStars)9827^%^&^%^%^&***()827$#@#$%%%$##$"; 
+const USERNAME = "maskoplak630";         
 
 let lastRobloxEvent = null;
 let leaderboard = {};
@@ -62,7 +63,7 @@ function setupEventHandlers() {
   }
 }
 
-// HTTP API untuk Roblox polling event
+// Setup express
 const app = express();
 
 app.get("/roblox-event", (req, res) => {
@@ -79,7 +80,6 @@ app.get("/roblox-event", (req, res) => {
   }
 });
 
-// Endpoint leaderboard
 app.get("/leaderboard", (req, res) => {
   const sorted = Object.entries(leaderboard)
     .sort((a, b) => b[1] - a[1])
@@ -88,12 +88,11 @@ app.get("/leaderboard", (req, res) => {
   res.json({ leaderboard: sorted });
 });
 
-app.listen(PORT_HTTP, () => {
-  console.log(`🌐 HTTP server aktif di http://0.0.0.0:${PORT_HTTP}`);
-});
+// Buat HTTP server dari Express app
+const server = http.createServer(app);
 
-// WebSocket Private
-const wss = new WebSocket.Server({ port: PORT_WS });
+// Buat WebSocket Server di atas HTTP server yang sama
+const wss = new WebSocket.Server({ server });
 let clients = [];
 
 wss.on("connection", (ws, req) => {
@@ -116,7 +115,6 @@ wss.on("connection", (ws, req) => {
   });
 });
 
-// Broadcast event ke semua WebSocket client
 function broadcastToClients(event) {
   const payload = JSON.stringify(event);
   clients.forEach(ws => {
@@ -125,6 +123,11 @@ function broadcastToClients(event) {
     }
   });
 }
+
+// Jalankan server HTTP + WebSocket di PORT yang sama
+server.listen(PORT, () => {
+  console.log(`🌐 Server HTTP & WebSocket aktif di port ${PORT}`);
+});
 
 // Jalankan koneksi TikTok LIVE
 connectTikTok();
